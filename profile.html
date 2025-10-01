@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Profile</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .dashboard {
+      width: 400px;
+      padding: 30px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .dashboard h2 {
+      margin-bottom: 20px;
+      font-size: 1.8em;
+      font-weight: 600;
+    }
+    .details {
+      text-align: left;
+      margin: 15px 0;
+    }
+    .details label {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .details input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .btn {
+      background: linear-gradient(to right, #ff7eb3, #ff758c);
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 15px;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s ease;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .profile-data {
+      text-align: left;
+      margin-top: 20px;
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .profile-data p {
+      margin: 8px 0;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <h2>Hello, <span id="username">User</span> 👋</h2>
+
+    <!-- Profile Form -->
+    <form id="profileForm">
+      <div class="details">
+        <label for="age">Age</label>
+        <input type="number" id="age" name="age" placeholder="Enter your age" />
+      </div>
+      <div class="details">
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob" name="dob" />
+      </div>
+      <div class="details">
+        <label for="contact">Contact</label>
+        <input type="text" id="contact" name="contact" placeholder="Enter your contact number" />
+      </div>
+      <button type="submit" class="btn">Save Details</button>
+    </form>
+
+    <!-- Display Profile Data -->
+    <div id="profileData" class="profile-data" style="display:none;">
+      <p><strong>Age:</strong> <span id="showAge"></span></p>
+      <p><strong>Date of Birth:</strong> <span id="showDob"></span></p>
+      <p><strong>Contact:</strong> <span id="showContact"></span></p>
+      <button id="editBtn" class="btn">Update Details</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user || !user.token) {
+        alert("Please login first!");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const usernameEl = document.getElementById("username");
+      const form = document.getElementById("profileForm");
+      const profileData = document.getElementById("profileData");
+      const editBtn = document.getElementById("editBtn");
+
+      // Fetch profile details from backend
+      fetch("php/profile.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `token=${encodeURIComponent(user.token)}`
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          usernameEl.textContent = res.user.username;
+
+          document.getElementById("age").value = res.user.age || "";
+          document.getElementById("dob").value = res.user.dob || "";
+          document.getElementById("contact").value = res.user.contact || "";
+
+          document.getElementById("showAge").textContent = res.user.age || "-";
+          document.getElementById("showDob").textContent = res.user.dob || "-";
+          document.getElementById("showContact").textContent = res.user.contact || "-";
+
+          form.style.display = "none";
+          profileData.style.display = "block";
+        } else {
+          alert(res.message);
+          window.location.href = "login.html";
+        }
+      });
+
+      editBtn.addEventListener("click", () => {
+        form.style.display = "block";
+        profileData.style.display = "none";
+      });
+
+      form.addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const age = document.getElementById("age").value;
+        const dob = document.getElementById("dob").value;
+        const contact = document.getElementById("contact").value;
+
+        fetch("php/profile.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `token=${encodeURIComponent(user.token)}&age=${encodeURIComponent(age)}&dob=${encodeURIComponent(dob)}&contact=${encodeURIComponent(contact)}`
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            alert(res.message || "Details updated successfully.");
+
+            document.getElementById("showAge").textContent = age || "-";
+            document.getElementById("showDob").textContent = dob || "-";
+            document.getElementById("showContact").textContent = contact || "-";
+
+            document.getElementById("age").value = age || "";
+            document.getElementById("dob").value = dob || "";
+            document.getElementById("contact").value = contact || "";
+
+            form.style.display = "none";
+            profileData.style.display = "block";
+          } else {
+            alert(res.message);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

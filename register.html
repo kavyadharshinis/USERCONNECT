@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="glass-card">
+      <div class="card-header">
+        <h2>REGISTRATION</h2>
+      </div>
+
+      <div id="alert"></div>
+
+      <form id="registerForm" method="POST" action="php/register.php">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Register</button>
+      </form>
+
+      <p class="login-link">
+        Already have an account?
+        <a href="login.html" id="loginLink">Login</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="js/register.js"></script>
+</body>
+</html>
